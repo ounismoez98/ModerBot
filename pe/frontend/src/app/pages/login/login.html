@@ -1,0 +1,39 @@
+<main class="login-page">
+  <a class="brand" href="/" aria-label="Forum étudiant, accueil">
+    <span class="brand-mark" aria-hidden="true">F</span>
+    <span>campus<span class="brand-light"> / forum</span></span>
+  </a>
+  <section class="login-card" aria-labelledby="login-title">
+    <p class="eyebrow">BIENVENUE SUR LE FORUM</p>
+    <h1 id="login-title">Connectez-vous</h1>
+    <p class="login-intro">Votre espace sera adapté à votre rôle : étudiant ou modérateur.</p>
+    <form (ngSubmit)="submit()">
+      <label for="login-username">Identifiant</label>
+      <input
+        id="login-username"
+        name="username"
+        [ngModel]="username()"
+        (ngModelChange)="username.set($event)"
+        autocomplete="username"
+        required
+      />
+      <label for="login-password">Mot de passe</label>
+      <input
+        id="login-password"
+        name="password"
+        type="password"
+        [ngModel]="password()"
+        (ngModelChange)="password.set($event)"
+        autocomplete="current-password"
+        required
+      />
+      @if (error()) {
+        <p class="login-error" role="alert">{{ error() }}</p>
+      }
+      <button type="submit" [disabled]="loading() || !username().trim() || !password()">
+        {{ loading() ? 'Connexion…' : 'Se connecter' }} <span aria-hidden="true">↗</span>
+      </button>
+    </form>
+  </section>
+  <p class="login-footer">Les étudiants accèdent au forum. Les modérateurs accèdent à la file de validation.</p>
+</main>

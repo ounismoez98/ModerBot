@@ -1,0 +1,71 @@
+<section class="moderation-card" aria-labelledby="batch-title">
+  <div class="moderation-heading">
+    <div>
+      <p class="eyebrow">FILE DE MODÉRATION</p>
+      <h2 id="batch-title">Analyser plusieurs commentaires</h2>
+    </div>
+    <span class="tool-icon" aria-hidden="true">≡</span>
+  </div>
+
+  <label for="batch-input">Un commentaire par ligne (100 maximum)</label>
+  <p class="queue-intro">L’analyse donne un avis indicatif. Elle ne publie et ne bloque aucun message ; le modérateur prend la décision finale.</p>
+  <textarea
+    id="batch-input"
+    [ngModel]="input()"
+    (ngModelChange)="input.set($event)"
+    name="batchInput"
+    rows="5"
+    placeholder="Les révisions commencent lundi.&#10;Je cherche un stage en informatique.&#10;Un commentaire par ligne…"
+  ></textarea>
+  <div class="batch-actions">
+    <span>{{ inputCount() }} commentaire(s)</span>
+    <button type="button" class="analyze-button" [disabled]="loading()" (click)="analyzeBatch()">
+      {{ loading() ? 'Analyse en cours…' : 'Analyser la file' }} <span aria-hidden="true">↗</span>
+    </button>
+  </div>
+
+  @if (error()) {
+    <p class="moderation-error" role="alert">{{ error() }}</p>
+  }
+
+  @if (loading()) {
+    <p class="loading-note" role="status">Les commentaires sont analysés par les modèles Hugging Face…</p>
+  }
+
+  @if (results().length > 0) {
+    <div class="summary-cards">
+      <div class="summary-published"><strong>{{ publishedCount() }}</strong><span>Avis favorables</span></div>
+      <div class="summary-review"><strong>{{ reviewCount() }}</strong><span>À vérifier</span></div>
+      <div class="summary-blocked"><strong>{{ blockedCount() }}</strong><span>Avis défavorables</span></div>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Commentaire</th>
+            <th>Toxicité</th>
+            <th>Sujet</th>
+            <th>Avis IA</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (result of results(); track $index) {
+            <tr>
+              <td class="comment-cell">{{ result.commentaire }}</td>
+              <td>{{ result.scoreToxic * 100 | number: '1.0-1' }}%</td>
+              <td class="subject-cell">{{ result.sujet }}</td>
+              <td>
+                <span class="decision-badge" [class]="result.decision.toLowerCase()">
+                  {{ decisionLabel(result.decision) }}
+                </span>
+                @if (result.explication) {
+                  <small class="decision-explanation">{{ result.explication }}</small>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

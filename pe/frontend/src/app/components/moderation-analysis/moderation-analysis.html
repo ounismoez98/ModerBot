@@ -1,0 +1,70 @@
+<section class="moderation-card" aria-labelledby="analysis-title">
+  <div class="moderation-heading">
+    <div>
+      <p class="eyebrow">ANALYSE INDIVIDUELLE</p>
+      <h2 id="analysis-title">Vérifier un commentaire</h2>
+    </div>
+    <span class="tool-icon" aria-hidden="true">⌕</span>
+  </div>
+
+  <label for="analysis-text">Commentaire à analyser</label>
+  <textarea
+    id="analysis-text"
+    [ngModel]="text()"
+    (ngModelChange)="text.set($event)"
+    name="analysisText"
+    maxlength="10000"
+    rows="4"
+    placeholder="Collez ou saisissez un commentaire…"
+  ></textarea>
+  <div class="analysis-actions">
+    <span>Résultat indicatif : seul le modérateur décide de publier.</span>
+    <button type="button" class="analyze-button" [disabled]="loading()" (click)="analyze()">
+      {{ loading() ? 'Analyse…' : 'Analyser' }} <span aria-hidden="true">↗</span>
+    </button>
+  </div>
+
+  @if (error()) {
+    <p class="moderation-error" role="alert">{{ error() }}</p>
+  }
+
+  @if (result(); as analysis) {
+    <div class="analysis-result">
+      <div class="result-topline">
+        <div>
+          <span class="result-label">AVIS DE L’IA</span>
+          <span class="decision-badge" [class]="analysis.decision.toLowerCase()">
+            {{ decisionLabel(analysis.decision) }}
+          </span>
+        </div>
+        @if (analysis.explication) {
+          <p class="moderation-explanation">{{ analysis.explication }}</p>
+        }
+        <div class="subject-result">
+          <span class="result-label">SUJET DÉTECTÉ</span>
+          <strong>{{ analysis.sujet }}</strong>
+        </div>
+      </div>
+      <div class="score-grid">
+        <div class="score-box toxic-score">
+          <span>Toxicité</span>
+          <strong>{{ analysis.scoreToxic * 100 | number: '1.0-1' }}%</strong>
+          <div class="score-track"><span [style.width.%]="analysis.scoreToxic * 100"></span></div>
+        </div>
+        <div class="score-box safe-score">
+          <span>Non-toxique</span>
+          <strong>{{ analysis.scoreNonToxic * 100 | number: '1.0-1' }}%</strong>
+          <div class="score-track"><span [style.width.%]="analysis.scoreNonToxic * 100"></span></div>
+        </div>
+      </div>
+      <details class="subject-scores">
+        <summary>Voir les scores par sujet</summary>
+        <div class="subject-score-list">
+          @for (entry of analysis.scoresSujets | keyvalue; track entry.key) {
+            <span>{{ entry.key }} <strong>{{ entry.value * 100 | number: '1.0-1' }}%</strong></span>
+          }
+        </div>
+      </details>
+    </div>
+  }
+</section>

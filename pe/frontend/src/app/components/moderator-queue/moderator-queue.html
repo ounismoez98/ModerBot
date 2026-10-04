@@ -1,0 +1,73 @@
+<section class="moderator-card" aria-labelledby="moderator-title">
+  <div class="queue-heading">
+    <div>
+      <p class="eyebrow">DÉCISION HUMAINE</p>
+      <h2 id="moderator-title">Commentaires à traiter</h2>
+    </div>
+    <button type="button" class="secondary-button" (click)="refresh()" [disabled]="loading()">Actualiser</button>
+  </div>
+
+  <div class="statistics-cards" aria-label="Statistiques de modération">
+    <div><strong>{{ statistics().pending }}</strong><span>En attente</span></div>
+    <div><strong>{{ statistics().published }}</strong><span>Publiés</span></div>
+    <div><strong>{{ statistics().rejected }}</strong><span>Rejetés</span></div>
+  </div>
+
+  @if (posts().length === 0 && !loading()) {
+    <p class="empty-queue">Aucune publication en attente.</p>
+  }
+
+  @if (loading()) {
+    <p class="queue-intro" role="status">Chargement de la file…</p>
+  }
+  @if (message()) {
+    <p class="queue-message" role="status">{{ message() }}</p>
+  }
+  @if (error()) {
+    <p class="queue-error" role="alert">{{ error() }}</p>
+  }
+
+  @for (post of posts(); track post.id) {
+    <article class="pending-post">
+      <div class="pending-heading">
+        <h3>{{ post.title }}</h3>
+        <span class="pending-label">En attente</span>
+      </div>
+      <p class="pending-content">{{ post.content }}</p>
+      <p class="pending-meta">Proposé par {{ post.author }} · {{ post.createdAt | date: 'dd/MM/yyyy, HH:mm' }}</p>
+      <p class="ai-opinion">
+        {{ decisionLabel(post.suggestedDecision) }} par l’IA
+        @if (post.toxicityScore !== null) { · Toxicité {{ post.toxicityScore * 100 | number: '1.0-1' }}% }
+        @if (post.suggestedSubject) { · Sujet : {{ post.suggestedSubject }} }
+      </p>
+      @if (post.suggestedExplanation) {
+        <p class="ai-explanation">{{ post.suggestedExplanation }}</p>
+      }
+      @if (post.moderationReason) {
+        <p class="previous-decision">
+          Décision précédente : {{ post.moderationReason }}
+          @if (post.moderatedBy) { — {{ post.moderatedBy }} }
+        </p>
+      }
+      <label [for]="'reason-' + post.id">Justification du modérateur</label>
+      <textarea
+        [id]="'reason-' + post.id"
+        [ngModel]="reasons()[post.id] ?? ''"
+        (ngModelChange)="setReason(post.id, $event)"
+        [name]="'reason-' + post.id"
+        rows="2"
+        maxlength="1000"
+        required
+        placeholder="Expliquez brièvement votre décision…"
+      ></textarea>
+      <div class="decision-actions">
+        <button class="approve-button" type="button" (click)="decide(post, true)" [disabled]="busyPostId() === post.id || !reasons()[post.id]?.trim()">
+          Approuver et publier
+        </button>
+        <button class="reject-button" type="button" (click)="decide(post, false)" [disabled]="busyPostId() === post.id || !reasons()[post.id]?.trim()">
+          Rejeter
+        </button>
+      </div>
+    </article>
+  }
+</section>

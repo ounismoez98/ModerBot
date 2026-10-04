@@ -1,0 +1,94 @@
+<div class="page-shell">
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Forum étudiant, accueil">
+      <span class="brand-mark" aria-hidden="true">F</span>
+      <span>campus<span class="brand-light"> / forum</span></span>
+    </a>
+    <span class="topbar-note"><span class="status-dot"></span> Espace étudiant</span>
+  </header>
+
+  <main class="layout">
+    <section class="intro">
+      <p class="eyebrow">LE COIN DES ÉTUDIANTS</p>
+      <h1>Les idées circulent<br />mieux <span>ensemble.</span></h1>
+      <p class="intro-copy">
+        Posez vos questions, partagez vos astuces et retrouvez les autres étudiants.
+      </p>
+      <div class="community-note">
+        <span class="community-icon" aria-hidden="true">✳</span>
+        <span>Un espace pour apprendre les uns des autres.</span>
+      </div>
+    </section>
+
+    <section class="moderation-section" aria-labelledby="moderation-heading">
+      <div class="moderation-section-heading">
+        <p class="eyebrow">MODÉRATION ASSISTÉE PAR L’IA</p>
+        <h2 id="moderation-heading">Comprendre avant de publier.</h2>
+        <p>L’IA donne un avis ; seul le modérateur décide si une publication apparaît sur le forum.</p>
+      </div>
+      <app-moderation-analysis />
+      <app-moderation-batch />
+    </section>
+
+    <section class="composer-card" aria-labelledby="composer-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">{{ editingPost() ? 'VOTRE CONTRIBUTION' : 'PRENDRE LA PAROLE' }}</p>
+          <h2 id="composer-title">{{ editingPost() ? 'Modifier la publication' : 'Soumettre un message' }}</h2>
+        </div>
+        <span class="compose-icon" aria-hidden="true">{{ editingPost() ? '↗' : '+' }}</span>
+      </div>
+      <app-post-form
+        [post]="editingPost()"
+        [saving]="saving()"
+        (save)="savePost($event)"
+        (cancel)="cancelEdit()"
+      />
+    </section>
+
+    <app-moderator-queue (published)="loadPosts()" />
+
+    <section class="feed-section" aria-labelledby="feed-title">
+      <div class="feed-heading">
+        <div>
+          <p class="eyebrow">LE FIL DU CAMPUS</p>
+          <h2 id="feed-title">Dernières publications <span class="post-count">{{ posts().length }}</span></h2>
+        </div>
+        <button class="refresh-button" type="button" (click)="loadPosts()" [disabled]="loading()">
+          <span aria-hidden="true">{{ loading() ? '…' : '↻' }}</span> Actualiser
+        </button>
+      </div>
+
+      @if (successMessage()) {
+        <p class="notice success-notice" role="status">{{ successMessage() }}</p>
+      }
+      @if (errorMessage()) {
+        <p class="notice error-notice" role="alert">{{ errorMessage() }}</p>
+      }
+      @if (loading() && posts().length === 0) {
+        <div class="empty-state" role="status">
+          <span class="empty-icon" aria-hidden="true">◌</span>
+          <p>Chargement des publications…</p>
+        </div>
+      } @else if (!loading() && posts().length === 0) {
+        <div class="empty-state">
+          <span class="empty-icon" aria-hidden="true">✳</span>
+          <h3>Le fil est encore calme.</h3>
+          <p>Soyez le premier à lancer la conversation.</p>
+        </div>
+      } @else {
+        <app-post-list
+          [posts]="posts()"
+          [moderator]="moderatorService.authenticated()"
+          (edit)="editPost($event)"
+          (remove)="deletePost($event)"
+        />
+      }
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>Campus / Forum</span>
+    <span>Fait pour apprendre, ensemble.</span>
+  </footer>
+</div>

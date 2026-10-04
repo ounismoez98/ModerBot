@@ -1,0 +1,55 @@
+<div class="page-shell">
+  <header class="topbar">
+    <a class="brand" routerLink="/moderation" aria-label="Modération forum, accueil">
+      <span class="brand-mark" aria-hidden="true">F</span>
+      <span>campus<span class="brand-light"> / modération</span></span>
+    </a>
+    <div class="account-bar">
+      <span class="topbar-note"><span class="status-dot"></span> Modérateur · {{ authService.username() }}</span>
+      <button class="logout-button" type="button" (click)="logout()">Déconnexion</button>
+    </div>
+  </header>
+  <main class="layout moderator-layout">
+    <section class="intro">
+      <p class="eyebrow">ESPACE MODÉRATEUR</p>
+      <h1>À vous de<br /><span>décider.</span></h1>
+      <p class="intro-copy">Examinez les propositions, consultez l’avis de l’IA et choisissez lesquelles publier.</p>
+    </section>
+
+    <app-moderator-queue (published)="loadPosts()" />
+
+    <section class="moderation-section" aria-labelledby="moderation-heading">
+      <div class="moderation-section-heading">
+        <p class="eyebrow">OUTILS D’AIDE</p>
+        <h2 id="moderation-heading">Analyse IA</h2>
+        <p>Les scores IA sont indicatifs ; la publication dépend toujours de votre approbation.</p>
+      </div>
+      <app-moderation-analysis />
+      <app-moderation-batch />
+    </section>
+
+    @if (editingPost()) {
+      <section class="composer-card" aria-labelledby="composer-title">
+        <div class="section-heading">
+          <div><p class="eyebrow">GESTION DU FORUM</p><h2 id="composer-title">Modifier la publication</h2></div>
+        </div>
+        <app-post-form [post]="editingPost()" [saving]="saving()" (save)="savePost($event)" (cancel)="cancelEdit()" />
+      </section>
+    }
+    @if (message()) { <p class="notice success-notice" role="status">{{ message() }}</p> }
+    @if (error()) { <p class="notice error-notice" role="alert">{{ error() }}</p> }
+
+    <section class="feed-section" aria-labelledby="feed-title">
+      <div class="feed-heading">
+        <div><p class="eyebrow">PUBLICATIONS VALIDÉES</p><h2 id="feed-title">Fil du campus <span class="post-count">{{ posts().length }}</span></h2></div>
+        <button class="refresh-button" type="button" (click)="loadPosts()" [disabled]="loading()">↻ Actualiser</button>
+      </div>
+      @if (posts().length === 0 && !loading()) {
+        <div class="empty-state"><p>Aucune publication approuvée pour le moment.</p></div>
+      } @else {
+        <app-post-list [posts]="posts()" [moderator]="true" (edit)="editPost($event)" (remove)="deletePost($event)" />
+      }
+    </section>
+  </main>
+  <footer class="footer"><span>Campus / Forum</span><span>Connecté comme modérateur</span></footer>
+</div>
