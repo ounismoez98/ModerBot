@@ -1,0 +1,30 @@
+<div class="post-list">
+  @for (post of posts; track post.id) {
+    <article class="post-card">
+      <div class="post-topline">
+        <span class="author-avatar" aria-hidden="true">{{ post.author.charAt(0).toUpperCase() }}</span>
+        <div class="post-byline">
+          <span class="post-author">{{ post.author }}</span>
+          <time [attr.datetime]="post.createdAt">{{ post.createdAt | date: 'dd/MM/yyyy, HH:mm' }}</time>
+        </div>
+        @if (moderator) {
+          <div class="post-actions">
+            <button type="button" class="text-action" (click)="edit.emit(post)" [attr.aria-label]="'Modifier ' + post.title">
+              Modifier
+            </button>
+            <button type="button" class="text-action delete-action" (click)="remove.emit(post)" [attr.aria-label]="'Supprimer ' + post.title">
+              Supprimer
+            </button>
+          </div>
+        }
+      </div>
+      <h3>{{ post.title }}</h3>
+      <p class="post-content">{{ post.content }}</p>
+      @if (post.moderationReason) {
+        <p class="moderation-note">
+          Validé par {{ post.moderatedBy ?? 'un modérateur' }} : {{ post.moderationReason }}
+        </p>
+      }
+    </article>
+  }
+</div>

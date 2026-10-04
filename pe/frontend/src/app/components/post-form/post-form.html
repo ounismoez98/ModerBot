@@ -1,0 +1,53 @@
+<form class="post-form" (ngSubmit)="submit()" #postForm="ngForm">
+  <label for="post-title">Titre</label>
+  <input
+    id="post-title"
+    name="title"
+    type="text"
+    placeholder="De quoi voulez-vous parler ?"
+    [(ngModel)]="title"
+    maxlength="200"
+    required
+  />
+
+  <label for="post-content">Message</label>
+  <textarea
+    id="post-content"
+    name="content"
+    placeholder="Partagez une question, une idée ou une ressource…"
+    [(ngModel)]="content"
+    maxlength="10000"
+    rows="4"
+    required
+  ></textarea>
+
+  <div class="form-bottom">
+    @if (post) {
+      <div class="author-field">
+        <label for="post-author">Auteur</label>
+        <input
+          id="post-author"
+          name="author"
+          type="text"
+          [(ngModel)]="author"
+          maxlength="100"
+          required
+        />
+      </div>
+    } @else {
+      <span class="author-note">Publication au nom de {{ authorName }}</span>
+    }
+    <div class="form-actions">
+      @if (post) {
+        <button class="cancel-button" type="button" (click)="cancel.emit()">Annuler</button>
+      }
+      <button class="submit-button" type="submit" [disabled]="postForm.invalid || saving">
+        @if (saving) {
+          Enregistrement…
+        } @else {
+          {{ post ? 'Renvoyer en modération' : 'Envoyer au modérateur' }} <span aria-hidden="true">↗</span>
+        }
+      </button>
+    </div>
+  </div>
+</form>
